@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../services/firebase';
 import { Volunteer } from '../types';
 import { useAuth } from '../hooks/useAuth';
+import { AREAS_OF_INTEREST } from '../constants';
 
 const ADMIN_UID = 'fwaqQNGaclTa0sW7eAiSyNpgs9R2';
 
@@ -85,13 +86,13 @@ const LinkManager: React.FC = () => {
       <h3 className="text-2xl font-bold text-slate-800 mb-4">Manage Success Page Links</h3>
       <div className="space-y-4">
         <div>
-          <label htmlFor="groupLink" className="block text-sm font-medium text-slate-700">"Join Group" Link URL</label>
+          <label htmlFor="groupLink" className="block text-sm font-medium text-slate-700">"Join Messenger Group" Link URL</label>
           <input
             type="url"
             id="groupLink"
             value={groupLink}
             onChange={(e) => setGroupLink(e.target.value)}
-            placeholder="https://chat.whatsapp.com/..."
+            placeholder="https://m.me/j/..."
             className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
         </div>
@@ -117,6 +118,60 @@ const LinkManager: React.FC = () => {
         </div>
         {message && <p className="text-sm text-green-600">{message}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
+      </div>
+    </div>
+  );
+};
+
+const AnalyticsOverview: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }) => {
+  const totalRegistrations = volunteers.length;
+
+  const interestCounts: { [key: string]: number } = {};
+  volunteers.forEach((volunteer) => {
+    volunteer.areasOfInterest.forEach((interest) => {
+      interestCounts[interest] = (interestCounts[interest] || 0) + 1;
+    });
+  });
+  
+  const maxCount = Math.max(...Object.values(interestCounts), 1);
+  
+  const COLORS = [
+    'bg-indigo-500', 'bg-purple-500', 'bg-pink-500',
+    'bg-blue-500', 'bg-sky-500', 'bg-teal-500'
+  ];
+
+  return (
+    <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-1 bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col justify-center items-center">
+        <h3 className="text-lg font-semibold text-slate-500">Total Registrations</h3>
+        <p className="text-5xl font-bold text-slate-800 mt-2">{totalRegistrations}</p>
+      </div>
+
+      <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-700 mb-4">Interest Distribution</h3>
+        <div className="space-y-3">
+          {AREAS_OF_INTEREST.map((interest, index) => {
+            const count = interestCounts[interest] || 0;
+            // FIX: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+            // The `reduce` function was causing `interestCounts` to have an inferred `any` type, leading to `Object.values` returning `unknown[]`.
+            // Refactored to a `forEach` loop for clearer type inference.
+            const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+            return (
+              <div key={interest} className="w-full">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium text-slate-600">{interest}</span>
+                  <span className="text-sm font-bold text-slate-500">{count}</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-2.5">
+                  <div 
+                    className={`${COLORS[index % COLORS.length]} h-2.5 rounded-full transition-all duration-500 ease-out`}
+                    style={{ width: `${percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -211,6 +266,8 @@ const AdminDashboard: React.FC = () => {
            </button>
         </div>
       </div>
+
+      {!loading && <AnalyticsOverview volunteers={volunteers} />}
 
       {loading && <p className="text-center text-slate-600">Loading volunteers...</p>}
       {error && <p className="text-center text-red-600">{error}</p>}
