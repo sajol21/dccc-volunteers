@@ -82,7 +82,7 @@ const RegistrationForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-2xl shadow-slate-200/50">
+    <div className="max-w-2xl mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-2xl shadow-slate-200/50">
        <div className="bg-slate-800 p-4 rounded-lg mb-8">
          <img 
           src="https://res.cloudinary.com/dabfeqgsj/image/upload/v1760472658/3RD-NATIONAL-CULTURAL-FIESTA_jbxrel.png"
@@ -104,7 +104,7 @@ const RegistrationForm: React.FC = () => {
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className={`block w-full pl-12 pr-4 py-4 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
+              className={`block w-full pl-12 pr-4 py-3 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.fullName ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
               required
               placeholder="e.g., John Doe"
             />
@@ -129,7 +129,7 @@ const RegistrationForm: React.FC = () => {
                 const numericValue = e.target.value.replace(/\D/g, '');
                 setPhoneNumber(numericValue.slice(0, 11));
               }}
-              className={`block w-full pl-12 pr-4 py-4 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.phoneNumber ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
+              className={`block w-full pl-12 pr-4 py-3 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.phoneNumber ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
               required
               placeholder="01712345678"
             />
@@ -151,7 +151,7 @@ const RegistrationForm: React.FC = () => {
               id="collegeRoll"
               value={collegeRoll}
               onChange={(e) => setCollegeRoll(e.target.value.replace(/\D/g, ''))}
-              className={`block w-full pl-12 pr-4 py-4 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.collegeRoll ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
+              className={`block w-full pl-12 pr-4 py-3 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.collegeRoll ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
               required
               placeholder="e.g., 2021001 (please use full roll)"
             />
@@ -190,7 +190,7 @@ const RegistrationForm: React.FC = () => {
             rows={4}
             value={expertise}
             onChange={(e) => setExpertise(e.target.value)}
-            className={`block w-full px-4 py-4 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.expertise ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
+            className={`block w-full px-4 py-3 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.expertise ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
             required
             placeholder="e.g., 'I have 2 years of experience in graphic design...' or 'I am a good public speaker...'"
           />

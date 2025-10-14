@@ -38,13 +38,13 @@ const SuccessPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-2xl shadow-slate-200/50 text-center">
+    <div className="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-2xl shadow-slate-200/50 text-center">
       <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
         <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h2 className="mt-6 text-3xl font-bold text-slate-800">Congratulations, {name || 'Volunteer'}!</h2>
+      <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-slate-800">Congratulations, {name || 'Volunteer'}!</h2>
       <p className="mt-2 text-md text-slate-600">
         Your application to volunteer for the DCCC National Cultural Fiesta 2025 has been received. Welcome to the team!
       </p>
