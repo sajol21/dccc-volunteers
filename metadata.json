@@ -1,0 +1,5 @@
+{
+  "name": "DCCC Volunteer Registration",
+  "description": "A responsive website for volunteer registration for the DCCC National Cultural Fiesta 2025, including a form, success page, and an admin panel to view and export submissions.",
+  "requestFramePermissions": []
+}
