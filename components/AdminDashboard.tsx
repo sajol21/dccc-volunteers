@@ -5,8 +5,6 @@ import { Volunteer } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import { AREAS_OF_INTEREST } from '../constants';
 
-const ADMIN_UID = 'fwaqQNGaclTa0sW7eAiSyNpgs9R2';
-
 const ConfirmationModal: React.FC<{ onConfirm: () => void; onCancel: () => void; }> = ({ onConfirm, onCancel }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -19,6 +17,36 @@ const ConfirmationModal: React.FC<{ onConfirm: () => void; onCancel: () => void;
           </button>
           <button onClick={onConfirm} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
             Confirm Export
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DeleteConfirmationModal: React.FC<{ volunteerName: string; onConfirm: () => void; onCancel: () => void; }> = ({ volunteerName, onConfirm, onCancel }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
+        <div className="flex items-center">
+            <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                <svg className="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div className="ml-4 text-left">
+                <h3 className="text-lg font-bold text-slate-800">Confirm Deletion</h3>
+            </div>
+        </div>
+        <p className="mt-4 text-sm text-slate-600">
+          Are you sure you want to delete the entry for <span className="font-semibold">{volunteerName}</span>? This action cannot be undone.
+        </p>
+        <div className="mt-6 flex justify-end space-x-3">
+          <button onClick={onCancel} className="px-4 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 text-sm font-medium">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm font-medium">
+            Confirm Delete
           </button>
         </div>
       </div>
@@ -183,6 +211,7 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showExportConfirm, setShowExportConfirm] = useState(false);
+  const [volunteerToDelete, setVolunteerToDelete] = useState<Volunteer | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -218,6 +247,20 @@ const AdminDashboard: React.FC = () => {
       console.error('Failed to log out', err);
     }
   };
+
+  const handleDeleteVolunteer = async () => {
+    if (!volunteerToDelete) return;
+
+    try {
+      await db.collection('volunteers').doc(volunteerToDelete.id).delete();
+      setVolunteers(prevVolunteers => prevVolunteers.filter(v => v.id !== volunteerToDelete.id));
+    } catch (err) {
+      setError('Failed to delete volunteer entry. Please try again.');
+      console.error('Delete error:', err);
+    } finally {
+      setVolunteerToDelete(null); // Close the modal
+    }
+  };
   
   const exportToCSV = () => {
     const headers = ["Full Name", "Phone Number", "College Roll", "Batch", "Areas of Interest", "Expertise", "Submitted At"];
@@ -249,6 +292,13 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="container mx-auto">
       {showExportConfirm && <ConfirmationModal onConfirm={handleConfirmExport} onCancel={() => setShowExportConfirm(false)} />}
+      {volunteerToDelete && (
+        <DeleteConfirmationModal
+          volunteerName={volunteerToDelete.fullName}
+          onConfirm={handleDeleteVolunteer}
+          onCancel={() => setVolunteerToDelete(null)}
+        />
+      )}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <h2 className="text-3xl font-bold text-slate-800">Admin Dashboard</h2>
         <div className="flex items-center gap-2">
@@ -286,6 +336,7 @@ const AdminDashboard: React.FC = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Areas of Interest</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Expertise</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Submitted At</th>
+                  <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -299,11 +350,23 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest.join(', ')}</td>
                       <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <button
+                          onClick={() => setVolunteerToDelete(volunteer)}
+                          className="text-slate-500 hover:text-red-600 p-2 rounded-full transition-colors duration-200"
+                          aria-label={`Delete entry for ${volunteer.fullName}`}
+                          title="Delete"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers have registered yet.</td>
+                    <td colSpan={8} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers have registered yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -312,7 +375,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       )}
       
-      {user && user.uid === ADMIN_UID && <LinkManager />}
+      {user && <LinkManager />}
     </div>
   );
 };
