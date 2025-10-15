@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../services/firebase';
 import { Volunteer } from '../types';
@@ -180,9 +180,6 @@ const AnalyticsOverview: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }
         <div className="space-y-3">
           {AREAS_OF_INTEREST.map((interest, index) => {
             const count = interestCounts[interest] || 0;
-            // FIX: Argument of type 'unknown' is not assignable to parameter of type 'number'.
-            // The `reduce` function was causing `interestCounts` to have an inferred `any` type, leading to `Object.values` returning `unknown[]`.
-            // Refactored to a `forEach` loop for clearer type inference.
             const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
             return (
               <div key={interest} className="w-full">
@@ -212,6 +209,8 @@ const AdminDashboard: React.FC = () => {
   const [error, setError] = useState('');
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   const [volunteerToDelete, setVolunteerToDelete] = useState<Volunteer | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Volunteer; direction: 'ascending' | 'descending' } | null>({ key: 'submittedAt', direction: 'descending' });
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -238,6 +237,42 @@ const AdminDashboard: React.FC = () => {
 
     fetchVolunteers();
   }, []);
+
+  const processedVolunteers = useMemo(() => {
+    let filteredVolunteers = volunteers.filter(volunteer => {
+        const query = searchQuery.toLowerCase();
+        return (
+            volunteer.fullName.toLowerCase().includes(query) ||
+            volunteer.phoneNumber.includes(query) ||
+            volunteer.collegeRoll.includes(query)
+        );
+    });
+
+    if (sortConfig !== null) {
+        filteredVolunteers.sort((a, b) => {
+            const aValue = a[sortConfig.key];
+            const bValue = b[sortConfig.key];
+            
+            if (aValue < bValue) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+    return filteredVolunteers;
+  }, [volunteers, searchQuery, sortConfig]);
+
+  const requestSort = (key: keyof Volunteer) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+        direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
 
   const handleLogout = async () => {
     try {
@@ -270,7 +305,7 @@ const AdminDashboard: React.FC = () => {
         `"${v.collegeRoll}"`,
         `"${v.batch || "HSC'27"}"`,
         `"${(v.areasOfInterest || []).join(', ')}"`,
-        `"${v.expertise.replace(/"/g, '""')}"`,
+        `"${(v.expertise || '').replace(/"/g, '""')}"`,
         `"${v.submittedAt.toLocaleString()}"`
     ].join(','));
 
@@ -287,6 +322,11 @@ const AdminDashboard: React.FC = () => {
   const handleConfirmExport = () => {
     exportToCSV();
     setShowExportConfirm(false);
+  };
+  
+  const getSortIndicator = (columnKey: keyof Volunteer) => {
+    if (sortConfig?.key !== columnKey) return null;
+    return sortConfig.direction === 'ascending' ? '▲' : '▼';
   };
 
   return (
@@ -320,6 +360,24 @@ const AdminDashboard: React.FC = () => {
 
       {!loading && <AnalyticsOverview volunteers={volunteers} />}
 
+       <div className="my-6">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Search by name, phone, or roll..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="block w-full max-w-md pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-white placeholder-slate-500 focus:outline-none focus:placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </div>
+      </div>
+
+
       {loading && <p className="text-center text-slate-600">Loading volunteers...</p>}
       {error && <p className="text-center text-red-600">{error}</p>}
       
@@ -329,41 +387,62 @@ const AdminDashboard: React.FC = () => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-100">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Full Name</th>
+                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                      <button onClick={() => requestSort('fullName')} className="flex items-center gap-2 group">
+                        <span>Full Name</span>
+                        <span className={`text-slate-400 group-hover:text-slate-600 ${sortConfig?.key === 'fullName' ? 'text-slate-800' : ''}`}>{getSortIndicator('fullName')}</span>
+                      </button>
+                    </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Phone Number</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">College Roll</th>
+                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                      <button onClick={() => requestSort('collegeRoll')} className="flex items-center gap-2 group">
+                          <span>College Roll</span>
+                          <span className={`text-slate-400 group-hover:text-slate-600 ${sortConfig?.key === 'collegeRoll' ? 'text-slate-800' : ''}`}>{getSortIndicator('collegeRoll')}</span>
+                      </button>
+                    </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Batch</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Areas of Interest</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Expertise</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Submitted At</th>
+                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
+                      <button onClick={() => requestSort('submittedAt')} className="flex items-center gap-2 group">
+                          <span>Submitted At</span>
+                          <span className={`text-slate-400 group-hover:text-slate-600 ${sortConfig?.key === 'submittedAt' ? 'text-slate-800' : ''}`}>{getSortIndicator('submittedAt')}</span>
+                      </button>
+                    </th>
                   <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
                 {volunteers.length > 0 ? (
-                  volunteers.map(volunteer => (
-                    <tr key={volunteer.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{volunteer.fullName}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.phoneNumber}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.collegeRoll}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.batch}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest?.join(', ') || ''}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                        <button
-                          onClick={() => setVolunteerToDelete(volunteer)}
-                          className="text-slate-500 hover:text-red-600 p-2 rounded-full transition-colors duration-200"
-                          aria-label={`Delete entry for ${volunteer.fullName}`}
-                          title="Delete"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </td>
+                  processedVolunteers.length > 0 ? (
+                    processedVolunteers.map(volunteer => (
+                      <tr key={volunteer.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{volunteer.fullName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.phoneNumber}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.collegeRoll}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.batch}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest?.join(', ') || ''}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                          <button
+                            onClick={() => setVolunteerToDelete(volunteer)}
+                            className="text-slate-500 hover:text-red-600 p-2 rounded-full transition-colors duration-200"
+                            aria-label={`Delete entry for ${volunteer.fullName}`}
+                            title="Delete"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers found for your search.</td>
                     </tr>
-                  ))
+                  )
                 ) : (
                   <tr>
                     <td colSpan={8} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers have registered yet.</td>
