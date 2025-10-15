@@ -1,9 +1,10 @@
-
 export const AREAS_OF_INTEREST = [
-  'Graphics',
+  'Event Management',
+  'Guest Handling',
+  'Graphics Design',
+  'Photography & Videography',
   'Content Writing',
   'Online Database',
-  'Guest Handling',
-  'Offline Interaction',
-  'Field Work'
+  'Field Work',
+  'Offline Interaction'
 ];

@@ -220,11 +220,12 @@ const AdminDashboard: React.FC = () => {
   };
   
   const exportToCSV = () => {
-    const headers = ["Full Name", "Phone Number", "College Roll", "Areas of Interest", "Expertise", "Submitted At"];
+    const headers = ["Full Name", "Phone Number", "College Roll", "Batch", "Areas of Interest", "Expertise", "Submitted At"];
     const rows = volunteers.map(v => [
         `"${v.fullName}"`,
         `"${v.phoneNumber}"`,
         `"${v.collegeRoll}"`,
+        `"${v.batch || "HSC'27"}"`,
         `"${v.areasOfInterest.join(', ')}"`,
         `"${v.expertise.replace(/"/g, '""')}"`,
         `"${v.submittedAt.toLocaleString()}"`
@@ -281,6 +282,7 @@ const AdminDashboard: React.FC = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Full Name</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Phone Number</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">College Roll</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Batch</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Areas of Interest</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Expertise</th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Submitted At</th>
@@ -293,6 +295,7 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{volunteer.fullName}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.phoneNumber}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.collegeRoll}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.batch}</td>
                       <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest.join(', ')}</td>
                       <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
@@ -300,7 +303,7 @@ const AdminDashboard: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers have registered yet.</td>
+                    <td colSpan={7} className="px-6 py-4 text-center text-sm text-slate-500">No volunteers have registered yet.</td>
                   </tr>
                 )}
               </tbody>

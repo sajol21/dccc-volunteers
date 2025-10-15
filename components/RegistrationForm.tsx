@@ -67,6 +67,7 @@ const RegistrationForm: React.FC = () => {
       await db.collection('volunteers').add({
         fullName,
         phoneNumber,
+        batch: "HSC'27",
         collegeRoll,
         areasOfInterest,
         expertise,
@@ -83,11 +84,11 @@ const RegistrationForm: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-4 sm:p-8 rounded-xl shadow-2xl shadow-slate-200/50">
-       <div className="bg-slate-800 p-4 rounded-lg mb-8">
+       <div className="bg-[#751710] p-4 rounded-lg mb-8">
          <img 
           src="https://res.cloudinary.com/dabfeqgsj/image/upload/v1760472658/3RD-NATIONAL-CULTURAL-FIESTA_jbxrel.png"
           alt="3rd National Cultural Fiesta Logo"
-          className="mx-auto h-20 w-auto"
+          className="mx-auto h-28 w-auto"
         />
        </div>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -136,7 +137,7 @@ const RegistrationForm: React.FC = () => {
           </div>
            {errors.phoneNumber && <p className="mt-1 text-xs text-red-600">{errors.phoneNumber}</p>}
         </div>
-
+        
         <div>
           <label htmlFor="collegeRoll" className="block text-sm font-semibold text-slate-600 mb-1">College Roll Number</label>
            <div className="relative">
@@ -153,10 +154,35 @@ const RegistrationForm: React.FC = () => {
               onChange={(e) => setCollegeRoll(e.target.value.replace(/\D/g, ''))}
               className={`block w-full pl-12 pr-4 py-3 bg-white border rounded-lg text-base shadow-sm placeholder-slate-400 transition duration-300 ease-in-out focus:outline-none ${errors.collegeRoll ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/40 focus:shadow-md focus:shadow-indigo-500/10'}`}
               required
-              placeholder="e.g., 2021001 (please use full roll)"
+              placeholder="12025260XXXX"
             />
           </div>
            {errors.collegeRoll && <p className="mt-1 text-xs text-red-600">{errors.collegeRoll}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="batch" className="block text-sm font-semibold text-slate-600 mb-1">Batch</label>
+          <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+              </div>
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+                  </svg>
+              </div>
+              <input
+                  type="text"
+                  id="batch"
+                  value="HSC'27"
+                  readOnly
+                  className="block w-full pl-12 pr-12 py-3 bg-slate-100 border border-slate-300 rounded-lg text-base text-slate-500 cursor-not-allowed shadow-sm"
+                  aria-describedby="batch-description"
+              />
+          </div>
+          <p id="batch-description" className="mt-1 text-xs text-slate-500">This registration is exclusively for students of the HSC'27 batch.</p>
         </div>
 
         <div>
