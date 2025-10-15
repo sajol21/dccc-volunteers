@@ -156,7 +156,7 @@ const AnalyticsOverview: React.FC<{ volunteers: Volunteer[] }> = ({ volunteers }
 
   const interestCounts: { [key: string]: number } = {};
   volunteers.forEach((volunteer) => {
-    volunteer.areasOfInterest.forEach((interest) => {
+    (volunteer.areasOfInterest || []).forEach((interest) => {
       interestCounts[interest] = (interestCounts[interest] || 0) + 1;
     });
   });
@@ -269,7 +269,7 @@ const AdminDashboard: React.FC = () => {
         `"${v.phoneNumber}"`,
         `"${v.collegeRoll}"`,
         `"${v.batch || "HSC'27"}"`,
-        `"${v.areasOfInterest.join(', ')}"`,
+        `"${(v.areasOfInterest || []).join(', ')}"`,
         `"${v.expertise.replace(/"/g, '""')}"`,
         `"${v.submittedAt.toLocaleString()}"`
     ].join(','));
@@ -347,7 +347,7 @@ const AdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.phoneNumber}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.collegeRoll}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.batch}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest.join(', ')}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest?.join(', ') || ''}</td>
                       <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
