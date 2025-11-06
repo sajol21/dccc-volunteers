@@ -382,10 +382,10 @@ const AdminDashboard: React.FC = () => {
       {error && <p className="text-center text-red-600">{error}</p>}
       
       {!loading && !error && (
-        <div className="bg-white shadow-2xl shadow-slate-200 rounded-xl overflow-hidden">
+        <div className="bg-white md:shadow-2xl md:shadow-slate-200 md:rounded-xl md:overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-100">
+            <table className="min-w-full">
+              <thead className="bg-slate-100 hidden md:table-header-group">
                 <tr>
                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">
                       <button onClick={() => requestSort('fullName')} className="flex items-center gap-2 group">
@@ -412,19 +412,19 @@ const AdminDashboard: React.FC = () => {
                   <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
+              <tbody className="bg-white md:divide-y md:divide-slate-200">
                 {volunteers.length > 0 ? (
                   processedVolunteers.length > 0 ? (
                     processedVolunteers.map(volunteer => (
-                      <tr key={volunteer.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{volunteer.fullName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.phoneNumber}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.collegeRoll}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.batch}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{volunteer.areasOfInterest?.join(', ') || ''}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate" title={volunteer.expertise}>{volunteer.expertise}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{volunteer.submittedAt.toLocaleString()}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                      <tr key={volunteer.id} className="block md:table-row mb-4 md:mb-0 shadow rounded-lg md:shadow-none md:rounded-none border md:border-none">
+                        <td data-label="Full Name: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left whitespace-normal md:whitespace-nowrap text-sm font-medium text-slate-900 before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.fullName}</td>
+                        <td data-label="Phone: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left whitespace-normal md:whitespace-nowrap text-sm text-slate-600 before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.phoneNumber}</td>
+                        <td data-label="College Roll: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left whitespace-normal md:whitespace-nowrap text-sm text-slate-600 before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.collegeRoll}</td>
+                        <td data-label="Batch: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left whitespace-normal md:whitespace-nowrap text-sm text-slate-600 before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.batch}</td>
+                        <td data-label="Interests: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left text-sm text-slate-600 whitespace-normal before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.areasOfInterest?.join(', ') || ''}</td>
+                        <td data-label="Expertise: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left text-sm text-slate-600 md:max-w-xs md:truncate whitespace-normal before:content-[attr(data-label)] before:float-left before:font-bold" title={volunteer.expertise}>{volunteer.expertise}</td>
+                        <td data-label="Submitted At: " className="px-4 py-3 block text-right border-b md:border-none md:table-cell md:px-6 md:py-4 md:text-left whitespace-normal md:whitespace-nowrap text-sm text-slate-600 before:content-[attr(data-label)] before:float-left before:font-bold">{volunteer.submittedAt.toLocaleString()}</td>
+                        <td className="px-4 py-3 block md:table-cell md:px-6 md:py-4 whitespace-nowrap text-center text-sm font-medium">
                           <button
                             onClick={() => setVolunteerToDelete(volunteer)}
                             className="text-slate-500 hover:text-red-600 p-2 rounded-full transition-colors duration-200"
